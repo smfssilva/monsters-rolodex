@@ -2,36 +2,57 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+
+import CardList from './components/card-list/card-list.component'
+import SearchBox from './components/search-box/search-box.component'
+
 class App extends Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
-      name: 'Sivanilson'
+      monsters: [],
+      searchField: '',
     }
   }
 
-  onClickHandler = () => {
-    if (this.state.name === 'Silva') {
-      this.setState({ name: 'Sivanilson' })
-    } else {
-      this.setState({ name: 'Silva' })
-    }
+  fetchMonsters = async () => {
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const data = await response.json();
+    this.setState(() => {
+      return { monsters: data }
+    }, () => {
+    })
+  }
+
+  onChangeHandle = (e) => {
+    const searchField = e.target.value.toLowerCase();
+    this.setState({ searchField })
+  }
+
+  componentDidMount() {
+    this.fetchMonsters()
   }
 
   render() {
+
+    const { monsters, searchField } = this.state;
+    const { onChangeHandle } = this;
+
+    const filteredMonsters = monsters.filter(monster => {
+      return monster.name.toLowerCase().includes(searchField);
+    })
+
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Hi {this.state.name}
-          </p>
-          <button
-            onClick={this.onClickHandler}
-          >Change Name</button>
-        </header>
+        < SearchBox
+          className="search-box"
+          onChangeHandle={onChangeHandle}
+          placeholder='search monster'
+        />
+        <CardList monsters={filteredMonsters} />
       </div >
     )
   }
